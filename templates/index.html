@@ -1,11 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
-    <script src="{{ url_for('static', filename='mobile.js') }}"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
-    </head>
-<body>
-    <input id="text" type="text">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body data-my-id="{{ user.id }}" data-my-username="{{ user.username }}" data-my-color="{{ user.color }}">
+
+    <div id="toast-container"></div>
+
+    <div id="welcome-modal" class="modal" style="display:flex;">
+        <div class="modal-content info-modal">
+            <h2><strong>Welcome!</strong></h2>
+            <ul>
+                <li>You have been assigned a random username (change by clicking your username in the top left)</li>
+                <li>By default messages you send delete themselves once you leave the site (change using the dropdown in the bottom left)</li>
+                <li>There are no moderators, have fun!</li>
+            </ul>
+            <button class="btn-primary" onclick="document.getElementById('welcome-modal').style.display='none'" style="width:100%">Enter</button>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fa-regular fa-comment-dots"></i> chat for the website
+            <span class="user-count-badge" title="Users Online">
+                <i class="fas fa-users"></i> <span id="online-count">1</span>
+            </span>
+        </div>
+        
+        <div class="user-menu" id="my-profile-trigger">
+            <span id="nav-username">{{ user.username }}</span>
+            <i class="fas fa-cog" style="color: #666; margin-left: 10px;"></i>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <div class="chat-container"> 
+            <div id="chat-window"></div>
+            
+            <div id="typing-indicator" class="typing-bar"></div>
+
+            <div class="input-controls">
+                
+                <input type="file" id="file-input" accept="image/*" hidden>
+                <button id="upload-btn" class="icon-btn" title="Upload Image (Max 5MB)">
+                    <i class="fas fa-plus"></i>
+                </button>
+                
+                <div class="select-wrapper">
+                    <select id="ttl-select">
+                        <option value="24">Expires in 24h</option>
+                        <option value="12">Expires in 12h</option>
+                        <option value="6">Expires in 6h</option>
+                        <option value="1">Expires in 1h</option>
+                        <option value="disconnect" style="color:#ff6b6b" selected>Delete on Disconnect</option>
+                    </select>
+                </div>
+
+                <textarea id="text" placeholder="Type a message..." rows="1"></textarea>
+                
+                <button id="send-btn" class="icon-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            
+            <div id="image-preview-container" class="hidden">
+                <img id="img-preview" src="">
+                <button id="clear-img">X</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-content edit-modal">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Profile</h2>
+            
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" maxlength="20" id="edit-username" value="{{ user.username }}">
+            </div>
+
+            <div class="form-group">
+                <label>Text Color</label>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <input type="color" id="edit-color" value="{{ user.color }}" style="width:50px; height:40px; border:none; padding:0;">
+                    <span style="font-size:0.8em; color:#666;">Your messages will appear in this color</span>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <a href="/logout" class="btn-danger">Logout</a>
+                <button id="save-profile" class="btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+</body>
+</html>
